@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Settings, FileText, FolderOpen } from 'lucide-react';
+import { Settings, FileText, FolderOpen, HelpCircle } from 'lucide-react';
 import { signOut } from '@/app/actions/auth';
 import { cn } from '@/lib/utils';
 
@@ -16,9 +16,10 @@ interface HeaderProps {
   backHref?: string;
   backLabel?: string;
   workspaceId?: string;
+  workspaceName?: string;
 }
 
-export function Header({ user, showBackButton, backHref = '/', backLabel = 'Back', workspaceId }: HeaderProps) {
+export function Header({ user, showBackButton, backHref = '/', backLabel = 'Back', workspaceId, workspaceName }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -81,6 +82,19 @@ export function Header({ user, showBackButton, backHref = '/', backLabel = 'Back
                   >
                     <FolderOpen className="w-4 h-4" />
                     Cases
+                  </Button>
+                </Link>
+                <Link href={`/workspace/${workspaceId}/faq`}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={cn(
+                      "gap-2",
+                      isActive(`/workspace/${workspaceId}/faq`) && "bg-gray-100"
+                    )}
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    FAQ
                   </Button>
                 </Link>
               </nav>

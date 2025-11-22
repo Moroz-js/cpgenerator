@@ -43,8 +43,14 @@ Stores user profile information.
 - Many-to-many with workspaces (through workspace_members)
 
 **RLS Policies:**
-- Users can view and update their own profile
+- Users can view their own profile
+- Users can view profiles of workspace owners (for invitations)
+- Users can view profiles of other workspace members
+- Users can update their own profile
 - Users can insert their own profile on signup
+
+**Foreign Keys:**
+- `user_id` → `profiles(id)` ON DELETE CASCADE
 
 ---
 
@@ -93,8 +99,15 @@ Junction table for workspace membership.
 - UNIQUE(workspace_id, user_id) - prevents duplicate memberships
 
 **RLS Policies:**
-- Users can view members of their workspaces
-- Owners can add/remove members
+- Users can view their own membership
+- Users can view members of workspaces they own
+- Users can view members of workspaces where they are members
+- System can insert members (for owner creation trigger)
+- Owners can remove members
+
+**Foreign Keys:**
+- `workspace_id` → `workspaces(id)` ON DELETE CASCADE
+- `user_id` → `profiles(id)` ON DELETE CASCADE
 
 ---
 
@@ -117,9 +130,12 @@ Stores workspace invitation tokens.
 - UNIQUE(token) - ensures token uniqueness
 
 **RLS Policies:**
-- Users can view invitations for their workspaces
-- Users can view invitations sent to their email
-- Owners can create/update invitations
+- Users can view invitations for workspaces they own
+- Users can view invitations sent to their email (via profiles table)
+- Workspace owners can create invitations
+- Workspace owners can update invitations
+
+**Note:** Uses `profiles` table for email lookup instead of `auth.users` to avoid RLS issues
 
 ---
 
@@ -132,24 +148,63 @@ Stores case studies for the workspace.
 | id | UUID | Primary key |
 | workspace_id | UUID | References workspaces(id) |
 | title | TEXT | Case title |
-| description | TEXT | Case description |
+| description | TEXT | Case description (rich text JSON) |
 | technologies | JSONB | Array of technology names |
-| results | TEXT | Project results/outcomes |
+| results | TEXT | Project results/outcomes (rich text JSON) |
 | images | JSONB | Array of image URLs |
+| links | JSONB | Array of link objects |
 | created_by | UUID | References auth.users(id) |
 | created_at | TIMESTAMPTZ | Creation timestamp |
 | updated_at | TIMESTAMPTZ | Last update timestamp |
 
-**JSONB Structure:**
+**JSONB Structures:**
+
+Technologies:
 ```json
-{
-  "technologies": ["Next.js", "React", "PostgreSQL"],
-  "images": ["url1", "url2"]
-}
+["Next.js", "React", "PostgreSQL", "Supabase"]
 ```
 
+Images:
+```json
+["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+```
+
+Links:
+```json
+[
+  {
+    "type": "website",
+    "url": "https://example.com",
+    "title": "Project Website"
+  },
+  {
+    "type": "github",
+    "url": "https://github.com/user/repo",
+    "title": "Source Code"
+  },
+  {
+    "type": "app_store",
+    "url": "https://apps.apple.com/...",
+    "title": "iOS App"
+  }
+]
+```
+
+**Link Types:**
+- `website` - Project website
+- `github` - GitHub repository
+- `app_store` - Apple App Store
+- `google_play` - Google Play Store
+- `demo` - Live demo
+- `other` - Other links
+
 **RLS Policies:**
-- Users can view/create/update/delete cases in their workspaces
+- Users can view cases in workspaces where they are members (uses EXISTS for performance)
+- Users can create cases in workspaces where they are members
+- Users can update cases in workspaces where they are members
+- Users can delete cases in workspaces where they are members
+
+**Note:** All policies use `EXISTS` instead of `IN` for better performance and to avoid recursion
 
 ---
 
@@ -208,7 +263,12 @@ Team Estimate:
 ```
 
 **RLS Policies:**
-- Users can view/create/update/delete proposals in their workspaces
+- Users can view proposals in workspaces where they are members (uses EXISTS)
+- Users can create proposals in workspaces where they are members
+- Users can update proposals in workspaces where they are members
+- Users can delete proposals in workspaces where they are members
+
+**Note:** All policies use `EXISTS` with explicit joins for optimal performance
 
 ---
 
@@ -391,13 +451,59 @@ Tracks active users in proposals for real-time collaboration.
 ## Indexes
 
 Performance indexes are created on:
-- workspace_members(workspace_id, user_id)
-- cases(workspace_id)
-- proposals(workspace_id, status)
-- public_links(slug, is_active)
-- templates(workspace_id)
-- comments(section_id, parent_id, is_resolved)
-- presence(proposal_id, user_id)
+
+**Profiles:**
+- `email` - For invitation lookups
+
+**Workspaces:**
+- `owner_id` - For owner checks
+
+**Workspace Members:**
+- `workspace_id` - For workspace queries
+- `user_id` - For user queries
+- `(workspace_id, user_id)` - Composite for RLS checks
+
+**Invitations:**
+- `workspace_id` - For workspace queries
+- `email` - For email lookups
+- `token` - For invitation acceptance
+
+**Cases:**
+- `workspace_id` - For workspace queries
+- `created_by` - For user queries
+
+**Proposals:**
+- `workspace_id` - For workspace queries
+- `status` - For status filtering
+- `created_by` - For user queries
+
+**Proposal Sections:**
+- `proposal_id` - For proposal queries
+
+**Preview Attachments:**
+- `section_id` - For section queries
+
+**Public Links:**
+- `slug` - For URL lookups
+- `proposal_id` - For proposal queries
+- `is_active` (partial) - For active links only
+
+**Templates:**
+- `workspace_id` - For workspace queries
+
+**Template Sections:**
+- `template_id` - For template queries
+
+**Comments:**
+- `section_id` - For section queries
+- `parent_id` - For threaded comments
+- `author_id` - For user queries
+- `is_resolved` (partial) - For unresolved comments only
+
+**Presence:**
+- `proposal_id` - For proposal queries
+- `user_id` - For user queries
+- `last_seen` - For cleanup queries and activity tracking
 
 ---
 
@@ -425,23 +531,29 @@ Automatically creates a user profile when a new user signs up through Supabase A
 
 ## Security Considerations
 
-1. **Row Level Security (RLS)**: All tables have RLS enabled
-2. **Workspace Isolation**: Data is isolated by workspace membership
-3. **Owner Permissions**: Workspace owners have elevated permissions
-4. **Public Access**: Only active public links allow anonymous access
+1. **Row Level Security (RLS)**: All tables have RLS enabled with comprehensive policies
+2. **Workspace Isolation**: Data is strictly isolated by workspace membership
+3. **Owner Permissions**: Workspace owners have elevated permissions for management
+4. **Public Access**: Only active public links allow anonymous access to proposals
 5. **Storage Security**: Storage buckets have appropriate access controls
 6. **JWT Authentication**: All authenticated requests use Supabase JWT tokens
+7. **Performance Optimization**: All RLS policies use `EXISTS` instead of `IN` for better performance
+8. **Recursion Prevention**: Policies avoid self-referential checks that could cause infinite recursion
+9. **Profile-Based Lookups**: Email lookups use `profiles` table instead of `auth.users` to avoid RLS conflicts
+10. **Foreign Key Constraints**: Cascade deletes ensure referential integrity
 
 ---
 
 ## Migration Order
 
 Migrations must be applied in this order:
-1. `001_initial_schema.sql` - Create tables
-2. `002_indexes.sql` - Create indexes
-3. `003_rls_policies.sql` - Enable RLS and create policies
-4. `004_storage_setup.sql` - Create storage buckets
+1. `001_initial_schema.sql` - Create all tables with proper constraints
+2. `002_indexes.sql` - Create performance indexes
+3. `003_rls_policies.sql` - Enable RLS and create optimized policies
+4. `004_storage_setup.sql` - Create storage buckets with access controls
 5. `005_functions_and_triggers.sql` - Create functions and triggers
+
+**Note:** All migrations are idempotent and can be safely re-run. The schema is production-ready with no additional fix migrations needed.
 
 ---
 

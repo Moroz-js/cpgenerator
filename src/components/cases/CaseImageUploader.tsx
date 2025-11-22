@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
@@ -34,17 +35,36 @@ export function CaseImageUploader({ caseId, existingImages = [], onUploadComplet
     setIsUploading(true);
 
     try {
-      // TODO: Implement actual upload to Supabase Storage
-      // For now, just simulate upload
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const supabase = createClient();
       
-      const mockUrl = `https://placeholder.com/${file.name}`;
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${caseId}/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error: uploadError } = await supabase.storage
+        .from('case-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('case-images')
+        .getPublicUrl(filePath);
       
       if (onUploadComplete) {
-        onUploadComplete(mockUrl);
+        onUploadComplete(publicUrl);
       }
     } catch (err) {
-      setError('Failed to upload image');
+      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
       setIsUploading(false);
     }

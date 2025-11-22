@@ -37,8 +37,8 @@
                        │
          ┌─────────────▼─────────────┐
          │   External Services       │
-         │  - Loom API               │
-         │  - PDF Generation         │
+         │  - PDF Generation (MVP+)  │
+         │  - Email Service          │
          └───────────────────────────┘
 ```
 
@@ -61,8 +61,7 @@
    - Supabase Storage для файлов и изображений
 
 4. **External Services**
-   - Loom API для встраивания видео
-   - Puppeteer/Playwright для генерации PDF
+   - Puppeteer/Playwright для генерации PDF (после MVP)
    - Email service (Supabase Auth) для приглашений
 
 ## Компоненты и интерфейсы
@@ -133,7 +132,8 @@ async function uploadCaseImage(caseId: string, file: File): Promise<Result<strin
 - `TeamEstimateEditor` (Client Component) - редактор оценки команды
 - `PaymentScheduleEditor` (Client Component) - редактор платежного календаря
 - `CaseSelector` (Client Component) - выбор кейсов
-- `LoomEmbedder` (Client Component) - встраивание Loom видео
+- `VideoLinkInput` (Client Component) - поле для ввода ссылки на видео
+- `VideoLinkButton` (Client Component) - кнопка для открытия видео
 - `PreviewAttachment` (Client Component) - прикрепление превью
 
 **Server Actions:**
@@ -333,7 +333,7 @@ CREATE TABLE proposals (
   tech_stack JSONB DEFAULT '[]', -- Array of technologies
   faq JSONB DEFAULT '[]', -- [{ question, answer }]
   payment_schedule JSONB DEFAULT '[]', -- [{ date, amount, description }]
-  loom_videos JSONB DEFAULT '[]', -- [{ url, section }]
+  video_url TEXT, -- Ссылка на видео (Loom, YouTube, Vimeo)
   
   created_by UUID NOT NULL REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -530,7 +530,7 @@ export interface Proposal {
   techStack: string[];
   faq: FAQItem[];
   paymentSchedule: PaymentScheduleItem[];
-  loomVideos: Array<{ url: string; section: string }>;
+  videoUrl?: string; // Ссылка на видео (Loom, YouTube, Vimeo)
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -782,12 +782,12 @@ CREATE POLICY "Anyone can view active public proposals"
 *Для любого* коммерческого предложения с заполненными полями (название, таймлайн, оценка, кейсы, контакты, процессы, стек, FAQ, платежный календарь), все данные должны быть сохранены и доступны при последующем чтении.
 **Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9**
 
-### Property 14: Добавление Loom видео
-*Для любой* валидной Loom ссылки, добавление её в КП должно сохранить ссылку в списке видео предложения.
+### Property 14: Сохранение видео-ссылки
+*Для любой* валидной ссылки на видео (Loom, YouTube, Vimeo), добавление её в КП должно сохранить ссылку в поле videoUrl предложения.
 **Validates: Requirements 5.1**
 
-### Property 15: Удаление Loom видео
-*Для любого* Loom видео в КП, удаление должно убрать видео из списка.
+### Property 15: Удаление видео-ссылки
+*Для любого* КП с видео-ссылкой, удаление должно очистить поле videoUrl.
 **Validates: Requirements 5.2**
 
 ### Property 16: Уникальность публичных ссылок
@@ -1216,8 +1216,7 @@ export interface UnknownError {
 - **Row Level Security** - изоляция данных
 
 ### External Services
-- **Loom API** - встраивание видео
-- **Puppeteer** или **Playwright** - генерация PDF
+- **Puppeteer** или **Playwright** - генерация PDF (после MVP)
 - **Sharp** - оптимизация изображений
 
 ### Testing
@@ -1314,7 +1313,7 @@ export interface UnknownError {
 3. **XSS Protection**
    - Санитизация пользовательского контента
    - Content Security Policy headers
-   - Безопасное встраивание Loom видео
+   - Валидация URL для видео-ссылок
 
 4. **SQL Injection Protection**
    - Параметризованные запросы через Supabase Client

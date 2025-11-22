@@ -40,13 +40,27 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   const isOwner = workspace.owner_id === user.id;
 
   // Get members
-  const { data: members } = await supabase
+  const { data: membersRaw, error: membersError } = await supabase
     .from('workspace_members')
-    .select(`
-      *,
-      user:profiles(*)
-    `)
+    .select('id, workspace_id, user_id, role, joined_at')
     .eq('workspace_id', workspaceId);
+
+  if (membersError) {
+    console.error('Members error:', membersError);
+  }
+
+  // Get profiles for all members
+  const userIds = membersRaw?.map(m => m.user_id) || [];
+  const { data: profilesData } = await supabase
+    .from('profiles')
+    .select('id, email, full_name, avatar_url')
+    .in('id', userIds);
+
+  // Combine members with their profiles
+  const members = membersRaw?.map(member => ({
+    ...member,
+    profiles: profilesData?.find(p => p.id === member.user_id) || null
+  }));
 
   const currentMember = members?.find(m => m.user_id === user.id);
 
@@ -64,11 +78,11 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
     userId: m.user_id,
     role: m.role as 'owner' | 'member',
     joinedAt: m.joined_at,
-    user: m.user ? {
-      id: m.user.id,
-      email: m.user.email,
-      fullName: m.user.full_name,
-      avatarUrl: m.user.avatar_url,
+    user: m.profiles ? {
+      id: m.profiles.id,
+      email: m.profiles.email,
+      fullName: m.profiles.full_name,
+      avatarUrl: m.profiles.avatar_url,
     } : undefined,
   })) || [];
 

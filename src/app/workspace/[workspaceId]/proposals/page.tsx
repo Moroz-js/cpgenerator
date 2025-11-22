@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Header, Breadcrumbs } from '@/components/layout';
+import { ProposalList } from '@/components/proposals';
 import Link from 'next/link';
+import { getProposals } from '@/app/actions/proposals';
 
 interface ProposalsPageProps {
   params: Promise<{
@@ -39,6 +40,10 @@ export default async function ProposalsPage({ params }: ProposalsPageProps) {
     .eq('id', workspaceId)
     .single();
 
+  // Get proposals
+  const proposalsResult = await getProposals(workspaceId);
+  const proposals = proposalsResult.success ? proposalsResult.data : [];
+
   return (
     <>
       <Header 
@@ -65,34 +70,12 @@ export default async function ProposalsPage({ params }: ProposalsPageProps) {
               <h1 className="text-3xl font-bold">Proposals</h1>
               <p className="text-gray-600">Manage your commercial proposals</p>
             </div>
-            <Button disabled>Create New Proposal</Button>
+            <Link href={`/workspace/${workspaceId}/proposals/new`}>
+              <Button>Create Proposal</Button>
+            </Link>
           </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Coming Soon</CardTitle>
-            <CardDescription>
-              Proposal management features are currently under development
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
-              This feature will allow you to:
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-gray-600">
-              <li>Create and edit commercial proposals</li>
-              <li>Add project timelines and team estimates</li>
-              <li>Select cases from your portfolio</li>
-              <li>Generate PDF versions</li>
-              <li>Share proposals with clients via public links</li>
-            </ul>
-            <div className="mt-6">
-              <Link href={`/workspace/${workspaceId}`}>
-                <Button variant="outline">Back to Workspace</Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+          <ProposalList proposals={proposals} workspaceId={workspaceId} />
         </div>
       </div>
     </>

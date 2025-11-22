@@ -64,6 +64,44 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Check workspace access for workspace routes
+  const workspaceMatch = path.match(/^\/workspace\/([^\/]+)/);
+  if (user && workspaceMatch) {
+    const workspaceId = workspaceMatch[1];
+    
+    // Skip access check for special routes like 'new'
+    if (workspaceId === 'new') {
+      return supabaseResponse;
+    }
+    
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(workspaceId)) {
+      console.log('Invalid workspace ID format:', workspaceId);
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      url.searchParams.set('error', 'invalid_workspace');
+      return NextResponse.redirect(url);
+    }
+    
+    // Check if user is a member of this workspace
+    const { data: membership, error } = await supabase
+      .from('workspace_members')
+      .select('id')
+      .eq('workspace_id', workspaceId)
+      .eq('user_id', user.id)
+      .single();
+
+    // If not a member, redirect to home
+    if (error || !membership) {
+      console.log('Workspace access denied:', { workspaceId, userId: user.id, error });
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      url.searchParams.set('error', 'workspace_access_denied');
+      return NextResponse.redirect(url);
+    }
+  }
+
   return supabaseResponse;
 }
 

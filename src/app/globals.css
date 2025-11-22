@@ -37,3 +37,73 @@ body {
   min-height: 100vh;
 }
 
+/* Tiptap Editor Styles */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-top: 0.83em;
+  margin-bottom: 0.83em;
+}
+
+.ProseMirror h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 1em 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror li {
+  margin: 0.25em 0;
+}
+
+.ProseMirror strong {
+  font-weight: bold;
+}
+
+.ProseMirror em {
+  font-style: italic;
+}
+
+.ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  color: #1d4ed8;
+}
+

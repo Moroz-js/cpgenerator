@@ -71,9 +71,6 @@ export default async function CasesPage({ params }: CasesPageProps) {
         <CaseList
           cases={result.data}
           workspaceId={workspaceId}
-          onCaseClick={(caseId) => {
-            // This will be handled client-side
-          }}
         />
       </div>
     </>

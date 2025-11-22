@@ -83,6 +83,18 @@ export interface FAQItem {
   answer: string;
 }
 
+export interface FAQ {
+  id: string;
+  workspaceId: string;
+  question: string;
+  answer: string;
+  category?: string;
+  orderIndex: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Proposal {
   id: string;
   workspaceId: string;
@@ -101,7 +113,7 @@ export interface Proposal {
   techStack: string[];
   faq: FAQItem[];
   paymentSchedule: PaymentScheduleItem[];
-  loomVideos: Array<{ url: string; section: string }>;
+  videoUrl?: string; // Video URL (Loom, YouTube, Vimeo, etc.)
   createdBy: string;
   createdAt: string;
   updatedAt: string;

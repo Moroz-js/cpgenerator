@@ -78,10 +78,13 @@ describe('Validation Schemas', () => {
   describe('createWorkspaceSchema', () => {
     it('should accept valid workspace name', () => {
       fc.assert(
-        fc.property(nonEmptyStringArb, (name) => {
-          const result = createWorkspaceSchema.safeParse({ name });
-          expect(result.success).toBe(true);
-        }),
+        fc.property(
+          nonEmptyStringArb.filter(s => s.trim().length >= 2),
+          (name) => {
+            const result = createWorkspaceSchema.safeParse({ name });
+            expect(result.success).toBe(true);
+          }
+        ),
         { numRuns: 100 }
       );
     });

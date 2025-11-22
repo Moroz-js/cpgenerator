@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout';
-import { FileText, FolderOpen, ArrowRight, Users, UserPlus } from 'lucide-react';
+import { FileText, FolderOpen, ArrowRight, Users, UserPlus, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface WorkspacePageProps {
@@ -137,7 +137,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <Link href={`/workspace/${workspaceId}/proposals`}>
               <CardHeader>
@@ -181,6 +181,30 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
               <CardContent>
                 <p className="text-sm text-gray-600">
                   Showcase your best work with detailed case studies including results and technologies
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href={`/workspace/${workspaceId}/faq`}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <HelpCircle className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <CardTitle>FAQ Library</CardTitle>
+                      <CardDescription>Manage Q&A content</CardDescription>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">
+                  Create reusable FAQ items to include in your proposals
                 </p>
               </CardContent>
             </Link>
