@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({
             request,
           });
@@ -27,15 +27,40 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
+  // Refresh session if expired - this will automatically refresh the session
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect routes that require authentication
-  if (!user && !request.nextUrl.pathname.startsWith('/auth') && !request.nextUrl.pathname.startsWith('/p/')) {
+  const path = request.nextUrl.pathname;
+
+  // Public routes that don't require authentication
+  const publicRoutes = [
+    '/auth/login',
+    '/auth/signup',
+    '/auth/reset-password',
+    '/auth/callback',
+  ];
+
+  // Public proposal view routes (format: /p/[slug])
+  const isPublicProposal = path.startsWith('/p/');
+
+  // Check if current path is a public route
+  const isPublicRoute = publicRoutes.some(route => path.startsWith(route));
+
+  // If user is not authenticated and trying to access protected route
+  if (!user && !isPublicRoute && !isPublicProposal) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
+    // Preserve the original URL to redirect back after login
+    url.searchParams.set('redirectTo', path);
+    return NextResponse.redirect(url);
+  }
+
+  // If user is authenticated and trying to access auth pages, redirect to home
+  if (user && isPublicRoute && path !== '/auth/callback') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
     return NextResponse.redirect(url);
   }
 

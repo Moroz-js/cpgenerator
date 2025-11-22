@@ -23,39 +23,17 @@
   --radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --color-background: oklch(9% 0.005 285.8);
-    --color-foreground: oklch(98% 0.002 285.8);
-    --color-card: oklch(9% 0.005 285.8);
-    --color-card-foreground: oklch(98% 0.002 285.8);
-    --color-popover: oklch(9% 0.005 285.8);
-    --color-popover-foreground: oklch(98% 0.002 285.8);
-    --color-primary: oklch(98% 0.002 285.8);
-    --color-primary-foreground: oklch(11.2% 0.015 285.8);
-    --color-secondary: oklch(17.5% 0.01 285.8);
-    --color-secondary-foreground: oklch(98% 0.002 285.8);
-    --color-muted: oklch(17.5% 0.01 285.8);
-    --color-muted-foreground: oklch(65.1% 0.01 285.8);
-    --color-accent: oklch(17.5% 0.01 285.8);
-    --color-accent-foreground: oklch(98% 0.002 285.8);
-    --color-destructive: oklch(30.6% 0.177 29.2);
-    --color-destructive-foreground: oklch(98% 0.002 285.8);
-    --color-border: oklch(17.5% 0.01 285.8);
-    --color-input: oklch(17.5% 0.01 285.8);
-    --color-ring: oklch(83.9% 0.01 285.8);
-  }
-}
-
 * {
   border-color: var(--color-border);
 }
 
+html,
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: #ffffff;
+  color: #1a1a1a;
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 

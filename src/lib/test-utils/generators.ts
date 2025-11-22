@@ -48,6 +48,13 @@ export const workspaceArb: fc.Arbitrary<Workspace> = fc.record({
   updatedAt: dateStringArb,
 });
 
+// Case link generator
+export const caseLinkArb = fc.record({
+  type: fc.constantFrom('website', 'github', 'app_store', 'google_play', 'demo', 'other'),
+  url: urlArb,
+  title: nonEmptyStringArb,
+});
+
 // Case generator
 export const caseArb: fc.Arbitrary<Case> = fc.record({
   id: uuidArb,
@@ -57,6 +64,7 @@ export const caseArb: fc.Arbitrary<Case> = fc.record({
   technologies: fc.array(shortStringArb, { minLength: 0, maxLength: 10 }),
   results: fc.option(longStringArb, { nil: undefined }),
   images: fc.array(urlArb, { minLength: 0, maxLength: 5 }),
+  links: fc.array(caseLinkArb, { minLength: 0, maxLength: 5 }),
   createdBy: uuidArb,
   createdAt: dateStringArb,
   updatedAt: dateStringArb,

@@ -1006,6 +1006,50 @@ CREATE POLICY "Anyone can view active public proposals"
    - Graceful degradation (например, если Loom недоступен)
    - Логирование ошибок для мониторинга
 
+### Стратегия логирования для отладки
+
+**ВАЖНО:** Все функции должны включать подробное логирование для упрощения отладки.
+
+1. **Логирование в Server Actions**
+   - Логировать входные параметры функций
+   - Логировать промежуточные результаты запросов к базе данных
+   - Логировать все ошибки с полным контекстом (stack trace, параметры)
+   - Использовать `console.log()` для успешных операций
+   - Использовать `console.error()` для ошибок
+   - Включать JSON.stringify() для сложных объектов
+
+2. **Логирование запросов к базе данных**
+   - Логировать SQL запросы (через Supabase client)
+   - Логировать результаты запросов (data, error)
+   - Логировать время выполнения запросов для оптимизации
+
+3. **Логирование аутентификации и авторизации**
+   - Логировать попытки входа (успешные и неуспешные)
+   - Логировать проверки прав доступа
+   - Логировать создание и принятие приглашений
+
+4. **Структура логов**
+   ```typescript
+   // Пример логирования в Server Action
+   console.log('=== createProposal START ===');
+   console.log('Input:', { workspaceId, userId });
+   
+   const { data, error } = await supabase.from('proposals').insert(...);
+   console.log('Database response:', { data, error });
+   
+   if (error) {
+     console.error('Error creating proposal:', error);
+     console.error('Error details:', JSON.stringify(error, null, 2));
+   }
+   
+   console.log('=== createProposal END ===');
+   ```
+
+5. **Логирование в production**
+   - В production использовать уровни логирования (info, warn, error)
+   - Отправлять критичные ошибки в систему мониторинга (Sentry)
+   - Не логировать чувствительные данные (пароли, токены)
+
 5. **Типы ошибок**
 
 ```typescript

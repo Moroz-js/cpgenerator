@@ -35,6 +35,12 @@ export interface Invitation {
   expiresAt: string;
 }
 
+export interface CaseLink {
+  type: 'website' | 'github' | 'app_store' | 'google_play' | 'demo' | 'other';
+  url: string;
+  title: string;
+}
+
 export interface Case {
   id: string;
   workspaceId: string;
@@ -43,6 +49,7 @@ export interface Case {
   technologies: string[];
   results?: string;
   images: string[];
+  links: CaseLink[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;

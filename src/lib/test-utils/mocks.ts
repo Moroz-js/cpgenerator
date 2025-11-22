@@ -50,6 +50,18 @@ export const mockCase: Case = {
   technologies: ['React', 'TypeScript', 'Next.js'],
   results: 'Successfully delivered the project',
   images: ['https://example.com/image1.jpg'],
+  links: [
+    {
+      type: 'website',
+      url: 'https://example.com',
+      title: 'Project Website',
+    },
+    {
+      type: 'github',
+      url: 'https://github.com/test/project',
+      title: 'Source Code',
+    },
+  ],
   createdBy: mockUser.id,
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',

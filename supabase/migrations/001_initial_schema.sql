@@ -51,6 +51,7 @@ CREATE TABLE cases (
   technologies JSONB DEFAULT '[]', -- Array of strings
   results TEXT,
   images JSONB DEFAULT '[]', -- Array of image URLs
+  links JSONB, -- { website, appStore, googlePlay, github, other }
   created_by UUID NOT NULL REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

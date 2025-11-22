@@ -1,0 +1,22 @@
+$content = Get-Content src/app/actions/workspace.ts -Raw
+$content = $content -replace 'Необходимо войти в систему', 'You must be logged in'
+$content = $content -replace 'У вас нет доступа к этому воркспейсу', 'You do not have access to this workspace'
+$content = $content -replace 'Не удалось создать приглашение', 'Failed to create invitation'
+$content = $content -replace 'Произошла ошибка при отправке приглашения', 'An error occurred while sending invitation'
+$content = $content -replace 'Неверные данные', 'Invalid data'
+$content = $content -replace 'Только владелец может удалять участников', 'Only owner can remove members'
+$content = $content -replace 'Участник не найден', 'Member not found'
+$content = $content -replace 'Нельзя удалить владельца воркспейса', 'Cannot remove workspace owner'
+$content = $content -replace 'Не удалось удалить участника', 'Failed to remove member'
+$content = $content -replace 'Произошла ошибка при удалении участника', 'An error occurred while removing member'
+$content = $content -replace 'Неверный токен приглашения', 'Invalid invitation token'
+$content = $content -replace 'Приглашение не найдено или уже использовано', 'Invitation not found or already used'
+$content = $content -replace 'Приглашение истекло', 'Invitation expired'
+$content = $content -replace 'Это приглашение предназначено для другого email', 'This invitation is for a different email'
+$content = $content -replace 'Вы уже являетесь участником этого воркспейса', 'You are already a member of this workspace'
+$content = $content -replace 'Не удалось добавить участника', 'Failed to add member'
+$content = $content -replace 'Произошла ошибка при принятии приглашения', 'An error occurred while accepting invitation'
+$content = $content -replace 'Неверный ID воркспейса', 'Invalid workspace ID'
+$content = $content -replace 'Произошла ошибка при переключении воркспейса', 'An error occurred while switching workspace'
+$content | Out-File -FilePath src/app/actions/workspace.ts -Encoding UTF8 -NoNewline
+Write-Host "Fixed Russian messages in workspace.ts"
