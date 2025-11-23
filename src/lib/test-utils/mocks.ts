@@ -114,12 +114,7 @@ export const mockProposal: Proposal = {
       description: 'Initial payment',
     },
   ],
-  loomVideos: [
-    {
-      url: 'https://loom.com/share/test',
-      section: 'introduction',
-    },
-  ],
+  videoUrl: 'https://loom.com/share/test',
   createdBy: mockUser.id,
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',

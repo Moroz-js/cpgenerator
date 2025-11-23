@@ -201,4 +201,44 @@ export interface Presence {
   user?: User;
 }
 
+// ============================================================================
+// Brand Settings Types
+// ============================================================================
+
+export interface BrandColors {
+  primary: string;
+  secondary: string;
+  background: string;
+  text: string;
+}
+
+export interface BrandTypography {
+  fontFamily: 'Inter' | 'Roboto' | 'Open Sans' | 'Lato' | 'Montserrat' | 'Poppins';
+  headingFont: 'Inter' | 'Roboto' | 'Open Sans' | 'Lato' | 'Montserrat' | 'Poppins';
+  bodyFont: 'Inter' | 'Roboto' | 'Open Sans' | 'Lato' | 'Montserrat' | 'Poppins';
+}
+
+export interface BrandComponents {
+  cardRadius: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  shadowSize: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+}
+
+export interface BrandSEO {
+  title: string;
+  description: string;
+  ogImage: string;
+}
+
+export interface WorkspaceBrandSettings {
+  id: string;
+  workspaceId: string;
+  logoUrl?: string;
+  colors: BrandColors;
+  typography: BrandTypography;
+  components: BrandComponents;
+  seo: BrandSEO;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Note: Result type is now in errors.ts

@@ -573,3 +573,255 @@ Migrations must be applied in this order:
 - Regularly analyze query performance
 - Add indexes as needed based on usage patterns
 - Archive old proposals if needed
+
+---
+
+## Builder Tables (Added in Migration 009)
+
+### workspace_brand_settings
+
+Stores branding and styling settings for each workspace.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| workspace_id | UUID | References workspaces(id), UNIQUE |
+| logo_url | TEXT | URL to workspace logo |
+| colors | JSONB | Color scheme (primary, secondary, background, text) |
+| typography | JSONB | Font settings (fontFamily, headingFont, bodyFont) |
+| components | JSONB | Component styling (cardRadius, shadowSize) |
+| seo | JSONB | SEO settings (title, description, ogImage) |
+| created_at | TIMESTAMPTZ | Creation timestamp |
+| updated_at | TIMESTAMPTZ | Last update timestamp |
+
+**Default Values:**
+
+Colors:
+```json
+{
+  "primary": "#3B82F6",
+  "secondary": "#8B5CF6",
+  "background": "#FFFFFF",
+  "text": "#1F2937"
+}
+```
+
+Typography:
+```json
+{
+  "fontFamily": "Inter",
+  "headingFont": "Inter",
+  "bodyFont": "Inter"
+}
+```
+
+Components:
+```json
+{
+  "cardRadius": "md",
+  "shadowSize": "md"
+}
+```
+
+SEO:
+```json
+{
+  "title": "",
+  "description": "",
+  "ogImage": ""
+}
+```
+
+**Relationships:**
+- Belongs to one workspace (one-to-one)
+
+**RLS Policies:**
+- Users can view/create/update/delete brand settings for workspaces they're members of
+
+**Constraints:**
+- UNIQUE(workspace_id) - one brand settings per workspace
+
+**Triggers:**
+- `update_workspace_brand_settings_updated_at` - Updates updated_at on changes
+
+---
+
+### proposal_blocks
+
+Stores individual content blocks that make up a proposal in the builder.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| proposal_id | UUID | References proposals(id) |
+| type | TEXT | Block type (hero_simple, cases_grid, timeline, etc.) |
+| order_index | INTEGER | Position in proposal |
+| props | JSONB | Block-specific properties |
+| style_overrides | JSONB | Optional style customizations |
+| created_at | TIMESTAMPTZ | Creation timestamp |
+| updated_at | TIMESTAMPTZ | Last update timestamp |
+
+**Block Types:**
+- `hero_simple` - Hero section with title, subtitle, CTA
+- `cases_grid` - Grid of case studies
+- `timeline` - Project timeline visualization
+- `team_estimate` - Team cost breakdown table
+- `payment` - Payment schedule table
+- `faq` - FAQ section
+- `contacts` - Contact information cards
+- `text` - Rich text content (Tiptap)
+- `gallery` - Image gallery
+
+**Props Structure (varies by type):**
+
+Hero Block:
+```json
+{
+  "title": "Project Title",
+  "subtitle": "Project Description",
+  "clientName": "Client Name",
+  "ctaLabel": "Get Started"
+}
+```
+
+Cases Block:
+```json
+{
+  "layout": "grid",
+  "caseIds": ["uuid1", "uuid2"],
+  "showTags": true,
+  "showLinks": true
+}
+```
+
+Timeline Block:
+```json
+{
+  "variant": "linear",
+  "items": [
+    {
+      "title": "Phase 1",
+      "date": "2024-01-01",
+      "description": "Description"
+    }
+  ]
+}
+```
+
+**Relationships:**
+- Belongs to one proposal
+- Ordered by order_index
+
+**RLS Policies:**
+- Users can view/create/update/delete blocks for proposals in their workspaces
+
+**Indexes:**
+- `idx_proposal_blocks_proposal` - For proposal queries
+- `idx_proposal_blocks_proposal_order` - For ordered queries
+
+**Triggers:**
+- `update_proposal_blocks_updated_at` - Updates updated_at on changes
+
+---
+
+### proposal_snapshots
+
+Stores immutable snapshots of proposals at publish time with all resolved data.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| proposal_id | UUID | References proposals(id) |
+| public_link_id | UUID | References public_links(id), nullable |
+| brand | JSONB | Snapshot of brand settings |
+| blocks | JSONB | Snapshot of all blocks with resolved data |
+| meta | JSONB | Metadata (version, publishedAt, publishedBy) |
+| created_at | TIMESTAMPTZ | Snapshot creation timestamp |
+
+**Purpose:**
+- Preserves proposal state at publish time
+- Includes resolved data (cases, FAQ items) to avoid broken links
+- Enables consistent viewing even if source data changes
+- Supports PDF generation from immutable data
+
+**Blocks Structure:**
+```json
+[
+  {
+    "id": "uuid",
+    "type": "hero_simple",
+    "order_index": 0,
+    "props": { ... },
+    "resolvedData": { ... }
+  },
+  {
+    "id": "uuid",
+    "type": "cases_grid",
+    "order_index": 1,
+    "props": { "caseIds": ["uuid1"] },
+    "resolvedData": {
+      "cases": [
+        {
+          "id": "uuid1",
+          "title": "Case Title",
+          "description": "...",
+          "technologies": ["React", "Node.js"],
+          "images": ["url1", "url2"]
+        }
+      ]
+    }
+  }
+]
+```
+
+**Meta Structure:**
+```json
+{
+  "version": "1.0",
+  "publishedAt": "2024-11-22T10:00:00Z",
+  "publishedBy": "user-uuid"
+}
+```
+
+**Relationships:**
+- Belongs to one proposal
+- Optionally linked to one public_link
+
+**RLS Policies:**
+- Users can view snapshots for proposals in their workspaces
+- Anyone can view snapshots with active public links (for public viewing)
+- Users can create/update/delete snapshots for proposals in their workspaces
+
+**Indexes:**
+- `idx_proposal_snapshots_proposal` - For proposal queries
+- `idx_proposal_snapshots_public_link` - For public link queries
+- `idx_proposal_snapshots_created` - For chronological queries
+
+---
+
+## Storage Buckets (Updated)
+
+### proposal-media (Added in Migration 010)
+- **Public**: Yes
+- **Purpose**: Store gallery block images for proposals
+- **Max Size**: 50MB per file
+- **Allowed Types**: Images (jpg, png, webp, gif)
+- **Access**: Anyone can view, authenticated users can upload/update/delete
+
+---
+
+## Migration Order (Updated)
+
+Migrations must be applied in this order:
+1. `001_initial_schema.sql` - Create all tables with proper constraints
+2. `002_indexes.sql` - Create performance indexes
+3. `003_rls_policies.sql` - Enable RLS and create optimized policies
+4. `004_storage_setup.sql` - Create storage buckets with access controls
+5. `005_functions_and_triggers.sql` - Create functions and triggers
+6. `006_add_profiles_fk.sql` - Add foreign key constraints
+7. `007_storage_setup.sql` - Additional storage setup
+8. `008_faq_items.sql` - FAQ items table
+9. `009_builder_tables.sql` - **Builder tables (brand settings, blocks, snapshots)**
+10. `010_builder_storage.sql` - **Builder storage bucket (proposal-media)**
+
+**Note:** Migrations 009 and 010 add the proposal builder functionality including brand customization, block-based content, and immutable snapshots for publishing.

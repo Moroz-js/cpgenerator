@@ -7,3 +7,4 @@ export * from './comment';
 export * from './publicLink';
 export * from './file';
 export * from './section';
+export * from './brand';

@@ -113,6 +113,23 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
 
           <Card>
             <CardHeader>
+              <CardTitle>Brand Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Customize the appearance of your commercial proposals with your brand colors, fonts, and logo.
+              </p>
+              <a 
+                href={`/workspace/${workspaceId}/settings/brand`}
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
+              >
+                Configure Brand Settings
+              </a>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Invite Members</CardTitle>
             </CardHeader>
             <CardContent>
