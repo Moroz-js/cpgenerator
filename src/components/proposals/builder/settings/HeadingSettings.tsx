@@ -11,7 +11,10 @@ interface HeadingSettingsProps {
 }
 
 export function HeadingSettings({ heading, onChange }: HeadingSettingsProps) {
-  const currentHeading = heading || { text: '', align: 'left' as const };
+  const currentHeading = {
+    text: heading?.text || '',
+    align: (heading?.align || 'left') as 'left' | 'center' | 'right',
+  };
 
   return (
     <div className="space-y-4">
