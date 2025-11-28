@@ -226,8 +226,8 @@ export function isFAQBlock(block: ProposalBlock): block is ProposalBlock & { pro
   return [BlockType.FAQ_ACCORDION, BlockType.FAQ_LIST].includes(block.type);
 }
 
-export function isContactsBlock(block: ProposalBlock): block is ProposalBlock & { props: ContactsBlockProps } {
-  return [BlockType.CONTACTS_CARDS, BlockType.CONTACTS_FOOTER].includes(block.type);
+export function isContactsBlock(block: ProposalBlock): block is ProposalBlock & { props: FooterBlockProps } {
+  return block.type === BlockType.CONTACTS_FOOTER;
 }
 
 export function isTextBlock(block: ProposalBlock): block is ProposalBlock & { props: TextBlockProps } {
