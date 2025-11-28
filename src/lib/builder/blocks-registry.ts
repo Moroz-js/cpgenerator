@@ -10,7 +10,7 @@ import {
   TeamEstimateBlockProps,
   PaymentBlockProps,
   FAQBlockProps,
-  ContactsBlockProps,
+  FooterBlockProps,
   TextBlockProps,
   GalleryBlockProps,
 } from './block-types';
@@ -25,7 +25,7 @@ export enum BlockCategory {
   TIMELINE = 'timeline',
   ESTIMATE = 'estimate',
   FAQ = 'faq',
-  CONTACTS = 'contacts',
+  FOOTER = 'footer',
   CONTENT = 'content',
 }
 
@@ -217,44 +217,23 @@ export const blockDefinitions: BlockDefinition[] = [
     } as FAQBlockProps,
   },
 
-  // ========== CONTACTS ==========
-  {
-    id: BlockType.CONTACTS_CARDS,
-    category: BlockCategory.CONTACTS,
-    label: 'Contact Cards',
-    description: 'Карточки контактов',
-    icon: '📇',
-    defaultProps: {
-      contacts: [
-        {
-          label: 'Менеджер проекта',
-          name: '',
-          email: '',
-          phone: '',
-          linkLabel: '',
-          linkUrl: '',
-        },
-      ],
-    } as ContactsBlockProps,
-  },
+  // ========== FOOTER ==========
   {
     id: BlockType.CONTACTS_FOOTER,
-    category: BlockCategory.CONTACTS,
-    label: 'Contact Footer',
-    description: 'Контакты в футере',
+    category: BlockCategory.FOOTER,
+    label: 'Footer',
+    description: 'Футер с контактами и соцсетями',
     icon: '📞',
     defaultProps: {
       contacts: [
         {
-          label: 'Контакты',
-          name: '',
           email: '',
           phone: '',
-          linkLabel: '',
-          linkUrl: '',
         },
       ],
-    } as ContactsBlockProps,
+      layout: 'simple',
+      copyrightText: '© 2024 Company Name',
+    } as FooterBlockProps,
   },
 
   // ========== CONTENT ==========
@@ -329,7 +308,7 @@ export function getCategoryLabel(category: BlockCategory): string {
     [BlockCategory.TIMELINE]: 'Таймлайн',
     [BlockCategory.ESTIMATE]: 'Оценка и оплата',
     [BlockCategory.FAQ]: 'FAQ',
-    [BlockCategory.CONTACTS]: 'Контакты',
+    [BlockCategory.FOOTER]: 'Футер',
     [BlockCategory.CONTENT]: 'Контент',
   };
   return labels[category];

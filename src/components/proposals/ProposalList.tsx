@@ -73,10 +73,10 @@ export function ProposalList({ proposals: initialProposals, workspaceId }: Propo
     };
 
     const labels = {
-      draft: 'In Progress',
-      sent: 'Ready',
-      accepted: 'Under Review',
-      rejected: 'Archived',
+      draft: 'Черновик',
+      sent: 'Отправлено',
+      accepted: 'Принято',
+      rejected: 'Отклонено',
     };
 
     return (
@@ -105,11 +105,11 @@ export function ProposalList({ proposals: initialProposals, workspaceId }: Propo
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Statuses</option>
-            <option value="draft">In Progress</option>
-            <option value="sent">Ready</option>
-            <option value="accepted">Under Review</option>
-            <option value="rejected">Archived</option>
+            <option value="all">Все статусы</option>
+            <option value="draft">Черновик</option>
+            <option value="sent">Отправлено</option>
+            <option value="accepted">Принято</option>
+            <option value="rejected">Отклонено</option>
           </select>
         </div>
       </div>
@@ -134,7 +134,7 @@ export function ProposalList({ proposals: initialProposals, workspaceId }: Propo
                   <div className="flex-1">
                     <CardTitle className="text-xl mb-2">
                       <Link 
-                        href={`/workspace/${workspaceId}/proposals/${proposal.id}`}
+                        href={`/workspace/${workspaceId}/proposals/${proposal.id}/builder`}
                         className="hover:text-blue-600 transition-colors"
                       >
                         {proposal.title}
@@ -158,7 +158,7 @@ export function ProposalList({ proposals: initialProposals, workspaceId }: Propo
                     <p>Updated: {new Date(proposal.updatedAt).toLocaleDateString('en-US')}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Link href={`/workspace/${workspaceId}/proposals/${proposal.id}/edit`}>
+                    <Link href={`/workspace/${workspaceId}/proposals/${proposal.id}/builder`}>
                       <Button variant="outline" size="sm">
                         Edit
                       </Button>

@@ -229,6 +229,9 @@ export async function updateProposal(input: UpdateProposalInput): Promise<Result
     if (validated.data.loomVideos !== undefined && validated.data.loomVideos.length > 0) {
       updateData.video_url = validated.data.loomVideos[0].url;
     }
+    if (validated.data.loomUrl !== undefined) {
+      updateData.loom_url = validated.data.loomUrl;
+    }
 
     // Update proposal
     const { data: updatedProposal, error: updateError } = await supabase

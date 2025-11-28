@@ -60,6 +60,18 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
 
   const isOwner = currentMember?.role === 'owner';
 
+  // Get proposals count
+  const { count: proposalsCount } = await supabase
+    .from('proposals')
+    .select('*', { count: 'exact', head: true })
+    .eq('workspace_id', workspaceId);
+
+  // Get cases count
+  const { count: casesCount } = await supabase
+    .from('cases')
+    .select('*', { count: 'exact', head: true })
+    .eq('workspace_id', workspaceId);
+
   return (
     <>
       <Header 
@@ -88,9 +100,9 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
               <FileText className="w-4 h-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">0</div>
+              <div className="text-3xl font-bold">{proposalsCount || 0}</div>
               <p className="text-xs text-gray-500 mt-1">
-                Create your first proposal
+                {proposalsCount === 0 ? 'Create your first proposal' : 'Active proposals'}
               </p>
             </CardContent>
           </Card>
@@ -103,9 +115,9 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
               <FolderOpen className="w-4 h-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">0</div>
+              <div className="text-3xl font-bold">{casesCount || 0}</div>
               <p className="text-xs text-gray-500 mt-1">
-                Build your portfolio
+                {casesCount === 0 ? 'Build your portfolio' : 'Case studies'}
               </p>
             </CardContent>
           </Card>

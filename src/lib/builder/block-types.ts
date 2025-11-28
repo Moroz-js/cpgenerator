@@ -29,8 +29,7 @@ export enum BlockType {
   FAQ_ACCORDION = 'faq_accordion',
   FAQ_LIST = 'faq_list',
   
-  // Contacts
-  CONTACTS_CARDS = 'contacts_cards',
+  // Footer
   CONTACTS_FOOTER = 'contacts_footer',
   
   // Content
@@ -52,6 +51,10 @@ export interface HeroBlockProps {
 
 // Cases Block Props
 export interface CasesBlockProps {
+  heading?: {
+    text: string;
+    align?: 'left' | 'center' | 'right';
+  };
   layout: 'slider' | 'grid' | 'row';
   caseIds: string[];
   showTags?: boolean;
@@ -66,6 +69,10 @@ export interface TimelineItem {
 }
 
 export interface TimelineBlockProps {
+  heading?: {
+    text: string;
+    align?: 'left' | 'center' | 'right';
+  };
   variant: 'linear' | 'vertical' | 'phases';
   items: TimelineItem[];
 }
@@ -78,6 +85,10 @@ export interface TeamMember {
 }
 
 export interface TeamEstimateBlockProps {
+  heading?: {
+    text: string;
+    align?: 'left' | 'center' | 'right';
+  };
   members: TeamMember[];
   currency?: string;
   showTotal?: boolean;
@@ -91,28 +102,42 @@ export interface PaymentItem {
 }
 
 export interface PaymentBlockProps {
+  heading?: {
+    text: string;
+    align?: 'left' | 'center' | 'right';
+  };
   items: PaymentItem[];
   currency?: string;
 }
 
 // FAQ Block Props
 export interface FAQBlockProps {
+  heading?: {
+    text: string;
+    align?: 'left' | 'center' | 'right';
+  };
   faqItemIds: string[];
   layout: 'accordion' | 'list';
 }
 
-// Contacts Block Props
+// Footer Block Props
 export interface ContactItem {
-  label?: string;
-  name?: string;
   email?: string;
   phone?: string;
-  linkLabel?: string;
-  linkUrl?: string;
 }
 
-export interface ContactsBlockProps {
+export interface SocialLink {
+  platform: 'linkedin' | 'github' | 'website';
+  url: string;
+}
+
+export interface FooterBlockProps {
   contacts: ContactItem[];
+  layout?: 'simple' | 'with_cta' | 'full';
+  ctaText?: string;
+  ctaUrl?: string;
+  socialLinks?: SocialLink[];
+  copyrightText?: string;
 }
 
 // Text Block Props
@@ -123,6 +148,10 @@ export interface TextBlockProps {
 
 // Gallery Block Props
 export interface GalleryBlockProps {
+  heading?: {
+    text: string;
+    align?: 'left' | 'center' | 'right';
+  };
   imageUrls: string[];
 }
 
@@ -137,7 +166,7 @@ export type BlockProps =
   | TeamEstimateBlockProps
   | PaymentBlockProps
   | FAQBlockProps
-  | ContactsBlockProps
+  | FooterBlockProps
   | TextBlockProps
   | GalleryBlockProps;
 

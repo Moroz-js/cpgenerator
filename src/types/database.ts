@@ -242,3 +242,28 @@ export interface WorkspaceBrandSettings {
 }
 
 // Note: Result type is now in errors.ts
+
+// ============================================================================
+// Proposal Builder Types
+// ============================================================================
+
+export interface ProposalBlock {
+  id: string;
+  proposalId: string;
+  type: string;
+  orderIndex: number;
+  props: any; // Block-specific properties (JSONB)
+  styleOverrides?: any; // Optional style customizations (JSONB)
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProposalSnapshot {
+  id: string;
+  proposalId: string;
+  publicLinkId?: string;
+  brand: any; // Immutable snapshot of brand settings (JSONB)
+  blocks: any; // Immutable snapshot of blocks with resolved data (JSONB)
+  meta: any; // Metadata (version, publishedAt, publishedBy) (JSONB)
+  createdAt: string;
+}

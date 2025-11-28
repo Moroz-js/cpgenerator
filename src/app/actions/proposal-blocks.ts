@@ -617,27 +617,10 @@ export async function updateProposalBlock(
       updated_at: new Date().toISOString(),
     };
 
-    // Validate and update props if provided
+    // Update props if provided (no strict validation - let client decide)
     if (props !== undefined) {
-      const propsValidation = validateBlockProps(existingBlock.type as BlockType, props);
-      console.log('Props validation result:', {
-        success: propsValidation.success,
-        errors: propsValidation.success ? null : propsValidation.error.flatten(),
-      });
-
-      if (!propsValidation.success) {
-        console.log('Props validation failed');
-        console.log('=== updateProposalBlock END ===');
-        return {
-          success: false,
-          error: validationError(
-            'Неверные данные блока',
-            propsValidation.error.flatten().fieldErrors as Record<string, string[]>
-          ),
-        };
-      }
-
-      updateData.props = propsValidation.data;
+      console.log('Updating props without strict validation');
+      updateData.props = props;
     }
 
     // Validate and update style overrides if provided

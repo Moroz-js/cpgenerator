@@ -55,10 +55,12 @@ export const createProposalSchema = z.object({
       section: z.string(),
     })
   ).default([]),
+  loomUrl: z.string().url('Invalid URL').nullable().optional(),
 });
 
 export const updateProposalSchema = createProposalSchema.partial().extend({
   id: z.string().uuid('Invalid proposal ID'),
+  loomUrl: z.string().url('Invalid URL').nullable().optional(),
 });
 
 export type CreateProposalInput = z.infer<typeof createProposalSchema>;
