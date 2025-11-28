@@ -187,7 +187,6 @@ export function validateBlockProps(blockType: BlockType, props: unknown) {
     case BlockType.FAQ_LIST:
       return faqBlockSchema.safeParse(props);
     
-    case BlockType.CONTACTS_CARDS:
     case BlockType.CONTACTS_FOOTER:
       return contactsBlockSchema.safeParse(props);
     
