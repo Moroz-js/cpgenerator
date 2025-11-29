@@ -7,20 +7,46 @@ import { signUp } from '@/app/actions/auth';
 import type { SignUpInput } from '@/lib/validations/auth';
 
 export default function SignUpPage() {
+  console.log('=== SignUpPage RENDER ===');
+  console.log('Environment:', {
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+  });
+
   const router = useRouter();
   const [error, setError] = useState<string>();
 
   const handleSubmit = async (data: SignUpInput) => {
+    console.log('=== SIGNUP SUBMIT START ===');
+    console.log('Email:', data.email);
+    console.log('Full name:', data.fullName);
+    console.log('Password length:', data.password?.length);
+    
     setError(undefined);
     
-    const result = await signUp(data);
-    
-    if (result.success) {
-      router.push('/');
-      router.refresh();
-    } else {
-      setError(result.error.message);
+    try {
+      const result = await signUp(data);
+      
+      console.log('Signup result:', {
+        success: result.success,
+        error: result.success ? null : result.error,
+      });
+      
+      if (result.success) {
+        console.log('Signup successful, redirecting to /');
+        router.push('/');
+        router.refresh();
+      } else {
+        console.error('Signup failed:', result.error.message);
+        setError(result.error.message);
+      }
+    } catch (err) {
+      console.error('Signup exception:', err);
+      setError('Произошла ошибка при регистрации');
     }
+    
+    console.log('=== SIGNUP SUBMIT END ===');
   };
 
   return (

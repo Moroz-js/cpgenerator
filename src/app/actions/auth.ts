@@ -23,10 +23,16 @@ import { User } from '@/types/database';
  * Sign in a user with email and password
  */
 export async function signIn(input: SignInInput): Promise<Result<User>> {
+  console.log('=== signIn SERVER ACTION START ===');
+  console.log('Input email:', input.email);
+  
   try {
     // Validate input
     const validated = signInSchema.safeParse(input);
+    console.log('Validation result:', { success: validated.success });
+    
     if (!validated.success) {
+      console.error('Validation failed:', validated.error.flatten());
       return {
         success: false,
         error: validationError(
@@ -36,13 +42,24 @@ export async function signIn(input: SignInInput): Promise<Result<User>> {
       };
     }
 
+    console.log('Creating Supabase client...');
     const supabase = await createClient();
+    
+    console.log('Attempting signInWithPassword...');
     const { data, error } = await supabase.auth.signInWithPassword({
       email: validated.data.email,
       password: validated.data.password,
     });
 
+    console.log('Supabase response:', {
+      hasData: !!data,
+      hasUser: !!data?.user,
+      hasSession: !!data?.session,
+      error: error ? { message: error.message, status: error.status } : null,
+    });
+
     if (error) {
+      console.error('Supabase auth error:', JSON.stringify(error, null, 2));
       return {
         success: false,
         error: authenticationError('Invalid email or password'),
@@ -50,14 +67,22 @@ export async function signIn(input: SignInInput): Promise<Result<User>> {
     }
 
     if (!data.user) {
+      console.error('No user data returned from signIn');
       return {
         success: false,
         error: authenticationError('Failed to sign in'),
       };
     }
 
+    console.log('SignIn successful:', {
+      userId: data.user.id,
+      email: data.user.email,
+      hasSession: !!data.session,
+    });
+
     revalidatePath('/', 'layout');
     
+    console.log('=== signIn SERVER ACTION END (SUCCESS) ===');
     return {
       success: true,
       data: {
@@ -68,7 +93,8 @@ export async function signIn(input: SignInInput): Promise<Result<User>> {
       },
     };
   } catch (error) {
-    console.error('Sign in error:', error);
+    console.error('=== signIn SERVER ACTION ERROR ===');
+    console.error('Sign in exception:', JSON.stringify(error, null, 2));
     return {
       success: false,
       error: unknownError('An error occurred during sign in'),
@@ -80,10 +106,16 @@ export async function signIn(input: SignInInput): Promise<Result<User>> {
  * Sign up a new user
  */
 export async function signUp(input: SignUpInput): Promise<Result<User>> {
+  console.log('=== signUp SERVER ACTION START ===');
+  console.log('Input:', { email: input.email, fullName: input.fullName });
+  
   try {
     // Validate input
     const validated = signUpSchema.safeParse(input);
+    console.log('Validation result:', { success: validated.success });
+    
     if (!validated.success) {
+      console.error('Validation failed:', validated.error.flatten());
       return {
         success: false,
         error: validationError(
@@ -93,7 +125,10 @@ export async function signUp(input: SignUpInput): Promise<Result<User>> {
       };
     }
 
+    console.log('Creating Supabase client...');
     const supabase = await createClient();
+    
+    console.log('Attempting signUp...');
     const { data, error } = await supabase.auth.signUp({
       email: validated.data.email,
       password: validated.data.password,
@@ -118,15 +153,23 @@ export async function signUp(input: SignUpInput): Promise<Result<User>> {
     }
 
     if (!data.user) {
+      console.error('No user data returned from signUp');
       return {
         success: false,
         error: authenticationError('Failed to create account'),
       };
     }
 
+    console.log('SignUp successful:', {
+      userId: data.user.id,
+      email: data.user.email,
+      hasSession: !!data.session,
+    });
+
     // Profile is created automatically by database trigger
     revalidatePath('/', 'layout');
 
+    console.log('=== signUp SERVER ACTION END (SUCCESS) ===');
     return {
       success: true,
       data: {
@@ -137,7 +180,8 @@ export async function signUp(input: SignUpInput): Promise<Result<User>> {
       },
     };
   } catch (error) {
-    console.error('Sign up error:', error);
+    console.error('=== signUp SERVER ACTION ERROR ===');
+    console.error('Sign up exception:', JSON.stringify(error, null, 2));
     return {
       success: false,
       error: unknownError('An error occurred during registration'),
