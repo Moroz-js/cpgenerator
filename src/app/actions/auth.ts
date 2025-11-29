@@ -25,6 +25,11 @@ import { User } from '@/types/database';
 export async function signIn(input: SignInInput): Promise<Result<User>> {
   console.log('=== signIn SERVER ACTION START ===');
   console.log('Input email:', input.email);
+  console.log('Environment check:', {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    anonKeyLength: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
+  });
   
   try {
     // Validate input
@@ -44,8 +49,14 @@ export async function signIn(input: SignInInput): Promise<Result<User>> {
 
     console.log('Creating Supabase client...');
     const supabase = await createClient();
+    console.log('Supabase client created successfully');
     
     console.log('Attempting signInWithPassword...');
+    console.log('Request details:', {
+      email: validated.data.email,
+      passwordLength: validated.data.password.length,
+    });
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email: validated.data.email,
       password: validated.data.password,
@@ -108,6 +119,11 @@ export async function signIn(input: SignInInput): Promise<Result<User>> {
 export async function signUp(input: SignUpInput): Promise<Result<User>> {
   console.log('=== signUp SERVER ACTION START ===');
   console.log('Input:', { email: input.email, fullName: input.fullName });
+  console.log('Environment check:', {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    anonKeyLength: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
+  });
   
   try {
     // Validate input
@@ -127,8 +143,15 @@ export async function signUp(input: SignUpInput): Promise<Result<User>> {
 
     console.log('Creating Supabase client...');
     const supabase = await createClient();
+    console.log('Supabase client created successfully');
     
     console.log('Attempting signUp...');
+    console.log('Request details:', {
+      email: validated.data.email,
+      passwordLength: validated.data.password.length,
+      fullName: validated.data.fullName,
+    });
+    
     const { data, error } = await supabase.auth.signUp({
       email: validated.data.email,
       password: validated.data.password,
